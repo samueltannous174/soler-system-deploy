@@ -1,0 +1,61 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito&display=swap");
+
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+}
+.backgroundBack{
+    height: 100vh;
+    background-image: url("https://t4.ftcdn.net/jpg/02/43/75/73/360_F_243757367_gBpS6R5c8DB7pL5gw9gi9KXlzFfbdZOA.jpg");
+}
+
+
+#root {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #f2f3ea;
+}
+.article-link {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 999;
+    color: whitesmoke;
+    font-size: 0.75rem;
+    font-family: "Nunito", sans-serif;
+    background: linear-gradient(90deg, #4666b7 0%, #a242b1 100%);
+    box-shadow: 5px 5px 7px rgba(171, 125, 187, 0.22);
+    border-radius: 99px;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+.shadow {
+    box-shadow: 4px 4px 10px 2px rgba(63, 0, 0, 0.3);
+}
+/* Button Style */
+button {
+    background-color: #4cafa3; /* Green background */
+    border: none;              /* Remove default borders */
+    color: white;               /* White text */
+    padding: 12px 24px;         /* Padding inside the button */
+    text-align: center;         /* Center text */
+    text-decoration: none;      /* Remove underline */
+    display: inline-block;      /* Make it inline-block */
+    font-size: 16px;            /* Font size */
+    margin: 8px 2px;            /* Margin around button */
+    border-radius: 8px;         /* Rounded corners */
+    transition-duration: 0.4s;  /* Animation effect on hover */
+    cursor: pointer;            /* Pointer cursor on hover */
+}
+
+/* Hover Effect */
+button:hover {
+    background-color: white;    /* White background on hover */
+    color: black;               /* Black text on hover */
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2); /* Add shadow on hover */
+}
+
+

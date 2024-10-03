@@ -2,36 +2,31 @@ import React, {useState} from "react";
 import {Canvas, useFrame, useThree} from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
-import planetData from "./planetData";
 import "./styles.css";
 import { gsap } from "gsap";
-import {useNavigate} from "react-router-dom";
-import { Text } from '@react-three/drei';
+import {random} from "gsap/gsap-core";
 
-export default function App() {
-    const [isMoving, setIsMoving] = useState(true);
-    const pause=()=>{
-        setIsMoving(false);
-        if (!isMoving){
-            setIsMoving(true);
-        }
+export default function EarthPlanet() {
+    const planet={
+        id: 1,
+        color: "blue",
+        xRadius: (1 + 1.5) * 4,
+        zRadius: (1 + 1.5) * 2,
+        size: random(0.5, 1)
     }
+    const [isMoving, setIsMoving] = useState(true);
+
     return (
         <div className="backgroundBack">
-        <>
-            <button onClick={pause} >
-                {isMoving ?"Pause" : "Continue" }
-            </button>
+            <>
 
-            <Canvas camera={{ position: [0, 20, 25], fov: 45 }}>
-                <Sun />
-                {planetData.map((planet) => (
+                <Canvas camera={{ position: [0, 20, 25], fov: 45 }}>
+                    <Sun />
                     <Planet planet={planet} key={planet.id} isMoving={isMoving} setIsMoving={setIsMoving} />
-                ))}
-                <Lights />
-                <OrbitControls />
-            </Canvas>
-        </>
+                    <Lights />
+                    <OrbitControls />
+                </Canvas>
+            </>
         </div>
 
     );
@@ -39,51 +34,39 @@ export default function App() {
 function Sun() {
     return (
         <mesh>
-            <sphereGeometry args={[3.5, 33, 32]} />
+            <sphereGeometry args={[2.5, 33, 32]} />
             <meshStandardMaterial color="#FFEB3B"  className="shadow"  />
         </mesh>
     )
 }
-function Planet({ planet: { color, xRadius, zRadius, size, name, velocity}, isMoving, setIsMoving }) {
+function Planet({ planet: { color, xRadius, zRadius, size }, isMoving, setIsMoving }) {
     const planetRef = React.useRef();
     const { camera } = useThree();
-    const navigate = useNavigate();
-
-    const velocityModified = velocity/10;
-    if ( name === 'Uranus' || name === 'Neptune'){
-        size=size/40000
-    }
-    else if (name === 'Saturn' || name === 'Jupiter' ){
-        size=size/70000
-
-    }
-    else {
-        size=size/50000
-    }
 
     const handleClick = () => {
-        setIsMoving(false);
+        setIsMoving(false); // Stop the movement of all planets
+
+        // Get the position of the planet
         const planetPosition = planetRef.current.position.clone();
 
-        const moveDirection = planetPosition.x < camera.position.x ? 'left' : 'right';
-
         gsap.to(camera.position, {
-            x: moveDirection === 'left' ? planetPosition.x - 10 : planetPosition.x + 10,
-            y: planetPosition.y + 5,
-            z: planetPosition.z + 5,
+            x: planetPosition.x+10,
+            y: planetPosition.y+5,
+            z: planetPosition.z+5,
             duration: 1.5,
             onUpdate: () => {
                 camera.lookAt(planetPosition);
             },
             onComplete: () => {
-                navigate(`/earth`);
-            }
+                window.location.href = `/planet`;
+            },
         });
     };
 
+
     useFrame(({ clock }) => {
         if (isMoving) {
-            const t = clock.getElapsedTime() * velocityModified;
+            const t = clock.getElapsedTime();
             const x = xRadius * Math.sin(t);
             const z = zRadius * Math.cos(t);
             planetRef.current.position.x = x;
@@ -94,24 +77,13 @@ function Planet({ planet: { color, xRadius, zRadius, size, name, velocity}, isMo
     return (
         <>
             <mesh ref={planetRef} onClick={handleClick}>
-                <Text
-                    position={[0, size + 2, 0]}
-                    fontSize={1}
-                    color="white"
-                    anchorX="center"
-                    anchorY="middle"
-                >
-                    {name}
-                </Text>
                 <sphereGeometry args={[size, 32, 32]} />
                 <meshStandardMaterial color={color} />
             </mesh>
-
             <Ecliptic xRadius={xRadius} zRadius={zRadius} />
         </>
     );
 }
-
 
 
 function Lights() {
