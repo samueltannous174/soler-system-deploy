@@ -59,13 +59,6 @@ export function Planet({ planet: { id,color, xRadius, zRadius, size, name, veloc
     const navigate = useNavigate();
     const [counter, setCounter] = useState(0);
 
-    // useEffect(() => {
-    //         if (initialPosition === null && isMoving && name === "Earth") {
-    //             const initialX = planetRef.current.position.x;
-    //             console.log(initialX)
-    //             setInitialPosition(initialX);
-    //         }
-    //     },[])
 
     const velocityModified = velocity/10;
     if ( name === 'Uranus' || name === 'Neptune'){
