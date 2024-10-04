@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useState} from "react";
 import {Canvas, useFrame, useLoader, useThree} from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -31,7 +31,6 @@ export default function App() {
             <button onClick={pause} >
                 {isMoving ?"Pause" : "Continue" }
             </button>
-
 
             { showPlanetInfoIndex!== -1 && <PlanetCard planetIndex={showPlanetInfoIndex} setShowPlanetInfoIndex={setShowPlanetInfoIndex} />}
             <h2 className="marginLeft">
