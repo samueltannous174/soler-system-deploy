@@ -2,7 +2,7 @@ import {data} from "./data";
 
 
 const planetData = data.Sheet1.map((planet, index) => ({
-    id: index,
+        id: index,
     name: planet.Planet,
     size: planet.D,
     distanceFromSun: planet.A,

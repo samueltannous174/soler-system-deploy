@@ -1,5 +1,5 @@
-import React, {useState} from "react";
-import {Canvas, useFrame, useThree} from "@react-three/fiber";
+import React, {useEffect, useState} from "react";
+import {Canvas, useFrame, useLoader, useThree} from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import planetData from "./planetData";
@@ -7,9 +7,18 @@ import "./styles.css";
 import { gsap } from "gsap";
 import {useNavigate} from "react-router-dom";
 import { Text } from '@react-three/drei';
+import PlanetCard from "./PlanetCard";
+import Sun from "./Sun";
+import {TextureLoader} from "three";
 
 export default function App() {
     const [isMoving, setIsMoving] = useState(true);
+    const [showPlanetInfoIndex, setShowPlanetInfoIndex] = useState(-1);
+    const planetsImages=["mer.jpg","ven0aaa2.jpg","ear0xuu2.jpg","mar0kuu2.jpg","jup0vss1.jpg","sat0fds1.jpg","uran.png","nep0fds1.jpg"]
+    const [number, setNumber] = useState(0);
+
+
+    console.log(number)
     const pause=()=>{
         setIsMoving(false);
         if (!isMoving){
@@ -23,10 +32,17 @@ export default function App() {
                 {isMoving ?"Pause" : "Continue" }
             </button>
 
+
+            { showPlanetInfoIndex!== -1 && <PlanetCard planetIndex={showPlanetInfoIndex} setShowPlanetInfoIndex={setShowPlanetInfoIndex} />}
+            <h2 className="marginLeft">
+                {number} Year
+            </h2>
             <Canvas camera={{ position: [0, 20, 25], fov: 45 }}>
-                <Sun />
+                <ambientLight />
+                <pointLight position={[10, 10, 10]} />
+                <Sun imageUrl={"sun2.png"} />
                 {planetData.map((planet) => (
-                    <Planet planet={planet} key={planet.id} isMoving={isMoving} setIsMoving={setIsMoving} />
+                    <Planet planet={planet} key={planet.id} isMoving={isMoving} setIsMoving={setIsMoving} setShowPlanetInfo={setShowPlanetInfoIndex} planetsImages={planetsImages} number={number}  setNumber={setNumber}  />
                 ))}
                 <Lights />
                 <OrbitControls />
@@ -36,18 +52,20 @@ export default function App() {
 
     );
 }
-function Sun() {
-    return (
-        <mesh>
-            <sphereGeometry args={[3.5, 33, 32]} />
-            <meshStandardMaterial color="#FFEB3B"  className="shadow"  />
-        </mesh>
-    )
-}
-function Planet({ planet: { color, xRadius, zRadius, size, name, velocity}, isMoving, setIsMoving }) {
+
+export function Planet({ planet: { id,color, xRadius, zRadius, size, name, velocity}, isMoving, setIsMoving, setShowPlanetInfo, planetsImages,number,setNumber}) {
     const planetRef = React.useRef();
     const { camera } = useThree();
     const navigate = useNavigate();
+    const [counter, setCounter] = useState(0);
+
+    // useEffect(() => {
+    //         if (initialPosition === null && isMoving && name === "Earth") {
+    //             const initialX = planetRef.current.position.x;
+    //             console.log(initialX)
+    //             setInitialPosition(initialX);
+    //         }
+    //     },[])
 
     const velocityModified = velocity/10;
     if ( name === 'Uranus' || name === 'Neptune'){
@@ -55,30 +73,33 @@ function Planet({ planet: { color, xRadius, zRadius, size, name, velocity}, isMo
     }
     else if (name === 'Saturn' || name === 'Jupiter' ){
         size=size/70000
-
     }
     else {
         size=size/50000
     }
 
     const handleClick = () => {
-        setIsMoving(false);
-        const planetPosition = planetRef.current.position.clone();
+        if (name==='Earth'){
+            setIsMoving(false);
+            const planetPosition = planetRef.current.position.clone();
+            const moveDirection = planetPosition.x < camera.position.x ? 'left' : 'right'
+            gsap.to(camera.position, {
+                x: moveDirection === 'left' ? planetPosition.x - 10 : planetPosition.x + 10,
+                y: planetPosition.y + 5,
+                z: planetPosition.z + 5,
+                duration: 1.5,
+                onUpdate: () => {
+                    camera.lookAt(planetPosition);
+                },
+                onComplete: () => {
+                    navigate(`/earth`);
+                }
+            })
+        }
+        else{
+            setShowPlanetInfo(id)
+        }
 
-        const moveDirection = planetPosition.x < camera.position.x ? 'left' : 'right';
-
-        gsap.to(camera.position, {
-            x: moveDirection === 'left' ? planetPosition.x - 10 : planetPosition.x + 10,
-            y: planetPosition.y + 5,
-            z: planetPosition.z + 5,
-            duration: 1.5,
-            onUpdate: () => {
-                camera.lookAt(planetPosition);
-            },
-            onComplete: () => {
-                navigate(`/earth`);
-            }
-        });
     };
 
     useFrame(({ clock }) => {
@@ -88,23 +109,31 @@ function Planet({ planet: { color, xRadius, zRadius, size, name, velocity}, isMo
             const z = zRadius * Math.cos(t);
             planetRef.current.position.x = x;
             planetRef.current.position.z = z;
-        }
+            if (name === "Earth"){
+                setCounter(prevCounter => prevCounter + 1)
+                if (counter%500===0){
+                    setNumber(prevCounter => prevCounter + 1)
+                }
+            }
+            }
+
     });
+    console.log(planetsImages[id])
+    const texture = useLoader(TextureLoader, planetsImages[id]);
 
     return (
         <>
             <mesh ref={planetRef} onClick={handleClick}>
-                <Text
-                    position={[0, size + 2, 0]}
-                    fontSize={1}
-                    color="white"
-                    anchorX="center"
-                    anchorY="middle"
-                >
-                    {name}
-                </Text>
+                    <Text
+                        position={[0, size + 2, 0]}
+                        fontSize={1}
+                        color="white"
+                        anchorX="center"
+                        anchorY="middle">
+                        {name}
+                    </Text>
                 <sphereGeometry args={[size, 32, 32]} />
-                <meshStandardMaterial color={color} />
+                <meshStandardMaterial map={texture} />
             </mesh>
 
             <Ecliptic xRadius={xRadius} zRadius={zRadius} />

@@ -1,68 +1,105 @@
-import React, {useState} from "react";
-import {Canvas, useFrame, useThree} from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import React, { useEffect, useState } from "react";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import {OrbitControls, Text} from "@react-three/drei";
 import * as THREE from "three";
+import { TextureLoader } from "three";
+import { useNavigate } from "react-router-dom";
 import "./styles.css";
-import { gsap } from "gsap";
-import {random} from "gsap/gsap-core";
+import data from './Updated_NEO_Astr.json';
+import dataPHA from './Update_PHA.json';
+
+import Asteroid from "./Astroid";
+
 
 export default function EarthPlanet() {
-    const planet={
+    const [saveData,setSaveData]=useState([])
+    const [saveDataPHA,setSaveDataPHA]=useState([])
+
+    const [showList,setShowList]=useState(false)
+    const [currentType,setCurrentType]=useState("Near")
+
+
+    useEffect(() => {
+        setSaveData(JSON.stringify(data, null, 2))
+        setSaveDataPHA(JSON.stringify(dataPHA, null, 2))
+
+    }, []);
+    const earth = {
         id: 1,
+        name:"Earth",
         color: "blue",
-        xRadius: (1 + 1.5) * 4,
-        zRadius: (1 + 1.5) * 2,
-        size: random(0.5, 1)
-    }
-    const [isMoving, setIsMoving] = useState(true);
+        imageUrl: "ear0xuu2.jpg",
+        xRadius: 0,
+        zRadius: 0,
+        size: 1,
+    };
+
+    const moon = {
+        id: 1,
+        name:"Moon",
+        color: "gray",
+        imageUrl: "moon.jpg",
+        xRadius: (1 + 1.5) * 8,
+        zRadius: (1 + 1.5) * 4,
+        size: 0.55,
+    };
+
+    const navigate = useNavigate();
+    const asteroidData = currentType === "Near" ? data : dataPHA;
+
 
     return (
+
         <div className="backgroundBack">
             <>
+                <button onClick={() => navigate(`/`)}>
+                    Back
+                </button>
+                <button onClick={() => setShowList(true)}>
+                    Show List
+                </button>
+                <button className="typeButton"  onClick={() => setCurrentType("Near")}>
+                    Near
+                </button>
+                <button  className="typeButton2" onClick={() => setCurrentType("Hazard")}>
+                    Potential Hazard
+                </button>
+                <h3 className="typeText" style={{ color: currentType === "Near" ? "orange" : " #3cb4e7" }}>
+                    Type Is {currentType}
+                </h3>
+
+                {showList && (
+                    <div className="planet-container">
+                        <ul>
+                            {(() => {
+                                const selectedData = currentType === "Near" ? data : dataPHA;
+                                return selectedData.map((asteroid, index) => (
+                                    <li key={index}>{asteroid   .fullName}</li>
+                                ));
+                            })()}
+                        </ul>
+                    </div>
+                )}
+
 
                 <Canvas camera={{ position: [0, 20, 25], fov: 45 }}>
-                    <Sun />
-                    <Planet planet={planet} key={planet.id} isMoving={isMoving} setIsMoving={setIsMoving} />
-                    <Lights />
+                    <Planet planet={earth} key={earth.id} isMoving={false} />
+                    <Planet planet={moon} isMoving={true} />
+                    {asteroidData.map((asteroid, index) => (
+                        <Asteroid key={ index} index={index} data={asteroid} currentType={currentType} />
+                    ))}
+
+                <Lights />
                     <OrbitControls />
                 </Canvas>
             </>
         </div>
-
     );
 }
-function Sun() {
-    return (
-        <mesh>
-            <sphereGeometry args={[2.5, 33, 32]} />
-            <meshStandardMaterial color="#FFEB3B"  className="shadow"  />
-        </mesh>
-    )
-}
-function Planet({ planet: { color, xRadius, zRadius, size }, isMoving, setIsMoving }) {
+
+function Planet({ planet: { name,xRadius, zRadius, size, imageUrl }, isMoving }) {
     const planetRef = React.useRef();
-    const { camera } = useThree();
-
-    const handleClick = () => {
-        setIsMoving(false); // Stop the movement of all planets
-
-        // Get the position of the planet
-        const planetPosition = planetRef.current.position.clone();
-
-        gsap.to(camera.position, {
-            x: planetPosition.x+10,
-            y: planetPosition.y+5,
-            z: planetPosition.z+5,
-            duration: 1.5,
-            onUpdate: () => {
-                camera.lookAt(planetPosition);
-            },
-            onComplete: () => {
-                window.location.href = `/planet`;
-            },
-        });
-    };
-
+    const texture = useLoader(TextureLoader, imageUrl);
 
     useFrame(({ clock }) => {
         if (isMoving) {
@@ -74,17 +111,25 @@ function Planet({ planet: { color, xRadius, zRadius, size }, isMoving, setIsMovi
         }
     });
 
+
     return (
         <>
-            <mesh ref={planetRef} onClick={handleClick}>
+            <mesh ref={planetRef}>
+                <Text
+                    position={[0, size + 2, 0]}
+                    fontSize={1}
+                    color="white"
+                    anchorX="center"
+                    anchorY="middle">
+                    {name}
+                </Text>
                 <sphereGeometry args={[size, 32, 32]} />
-                <meshStandardMaterial color={color} />
+                <meshStandardMaterial map={texture} />
             </mesh>
             <Ecliptic xRadius={xRadius} zRadius={zRadius} />
         </>
     );
 }
-
 
 function Lights() {
     return (
