@@ -32,11 +32,16 @@ export default function App() {
                 {isMoving ?"Pause" : "Continue" }
             </button>
 
+            <h3 style={{ color: "lightblue" }}>
+                Tip 1: Click on Earth to show asteroids
+            </h3>
+            <h3 style={{ color: "lightblue" }}>
+                Tip 2: click on planet to show details
+            </h3>
+
 
             { showPlanetInfoIndex!== -1 && <PlanetCard planetIndex={showPlanetInfoIndex} setShowPlanetInfoIndex={setShowPlanetInfoIndex} />}
-            <h2 className="marginLeft">
-                {number} Year
-            </h2>
+
             <Canvas camera={{ position: [0, 20, 25], fov: 45 }}>
                 <ambientLight />
                 <pointLight position={[10, 10, 10]} />
