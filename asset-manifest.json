@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/soler-system-deploy/static/css/main.ab1ed153.css",
-    "main.js": "/soler-system-deploy/static/js/main.b143a99b.js",
+    "main.js": "/soler-system-deploy/static/js/main.b2fc9db5.js",
     "index.html": "/soler-system-deploy/index.html",
     "main.ab1ed153.css.map": "/soler-system-deploy/static/css/main.ab1ed153.css.map",
-    "main.b143a99b.js.map": "/soler-system-deploy/static/js/main.b143a99b.js.map"
+    "main.b2fc9db5.js.map": "/soler-system-deploy/static/js/main.b2fc9db5.js.map"
   },
   "entrypoints": [
     "static/css/main.ab1ed153.css",
-    "static/js/main.b143a99b.js"
+    "static/js/main.b2fc9db5.js"
   ]
 }
